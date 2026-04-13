@@ -11,7 +11,7 @@ namespace MegaEaterMMO.API.Migrations.Builder
             var optionsBuilder = new DbContextOptionsBuilder<MegaEaterContext>();
 
             optionsBuilder.UseNpgsql(
-                // Only for test environment, real prod will involve .env vars
+                // todo : setup aspnet_environment specific connection strings 
                 "Host=localhost;Port=5432;Database=megaeater;Username=postgres;Password=postgres"
             );
 

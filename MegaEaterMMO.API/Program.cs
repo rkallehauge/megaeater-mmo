@@ -40,12 +40,16 @@ if (string.IsNullOrEmpty(redisConfig)){
 
 
 builder.Services.AddDbContext<MegaEaterContext>(options =>
-    options.UseNpgsql(configuration.GetConnectionString("Default")), ServiceLifetime.Scoped
+    options.UseNpgsql(connectionString), ServiceLifetime.Scoped
 );
 
 builder.Services.AddSingleton<IConnectionMultiplexer>(
-    ConnectionMultiplexer.Connect(configuration.GetValue<string>("Redis:Configuration"))
+    ConnectionMultiplexer.Connect(redisConfig)
 );
+Console.WriteLine("::CONNECTION VARS::");
+Console.WriteLine(connectionString);
+Console.WriteLine(redisConfig);
+Console.WriteLine("::CONNECTION VARS::");
 
 builder.Services.AddEndpointsApiExplorer();
 
