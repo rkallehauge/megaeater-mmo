@@ -8,6 +8,10 @@ using Microsoft.OpenApi;
 using StackExchange.Redis;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
+using RabbitMQ.Client;
+using Neo4j.Driver;
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +24,7 @@ var configuration = new ConfigurationBuilder()
     .AddEnvironmentVariables() 
     .Build();
 
+
 builder.Services.AddControllers();
 
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
@@ -27,28 +32,73 @@ builder.Services.AddScoped<IScoreService, ScoreService>();
 builder.Services.AddScoped<IUserService, UserService>(); // todo : remove unnecessary interface
 builder.Services.AddScoped<IRateLimitingService, RateLimitingService>();
 
-string connectionString = configuration.GetConnectionString("Default");
-string redisConfig = configuration.GetValue<string>("Redis:Configuration");
+string postgresConnectionString = configuration.GetConnectionString("Postgres");
+string redisConnectionString = configuration.GetConnectionString("Redis");
+string rabbitMQConnectionString = configuration.GetConnectionString("RabbitMQ");
+IConfigurationSection neo4jSection = configuration.GetSection("Neo4j");
 
-if(string.IsNullOrEmpty(connectionString))
+// too lazy to do the lazy way of doing this
+if(string.IsNullOrEmpty(postgresConnectionString))
 {
-    throw new Exception("Database connection string is not configured.");
+    throw new Exception("PostgreSQL connection string is not set in configuration.");
 }
-if (string.IsNullOrEmpty(redisConfig)){
-    throw new Exception("Redis configuration is not configured.");
+
+if(string.IsNullOrEmpty(redisConnectionString))
+{
+    throw new Exception("Redis connection string is not set in configuration.");
 }
+
+if(string.IsNullOrEmpty(rabbitMQConnectionString))
+{
+    throw new Exception("RabbitMQ connection string is not set in configuration.");
+}
+
+if(string.IsNullOrEmpty(neo4jSection.GetValue<string>("Uri")) || string.IsNullOrEmpty(neo4jSection.GetValue<string>("Username")) || string.IsNullOrEmpty(neo4jSection.GetValue<string>("Password")))
+{
+    throw new Exception("RabbitMQ connection string(s) is not set in configuration.");
+}
+
+Console.WriteLine("::CONFIG VARS::");
+Console.WriteLine(postgresConnectionString);
+Console.WriteLine(redisConnectionString);
+Console.WriteLine(rabbitMQConnectionString);
+
 
 
 builder.Services.AddDbContext<MegaEaterContext>(options =>
-    options.UseNpgsql(connectionString), ServiceLifetime.Scoped
+    options.UseNpgsql(postgresConnectionString), ServiceLifetime.Scoped
 );
 
+
 builder.Services.AddSingleton<IConnectionMultiplexer>(
-    ConnectionMultiplexer.Connect(redisConfig)
+    ConnectionMultiplexer.Connect(redisConnectionString)
 );
+
+builder.Services.AddSingleton(sp =>
+{
+    var factory = new ConnectionFactory()
+    {
+        Uri = new Uri(configuration.GetConnectionString("RabbitMQ"))
+    };
+
+    return factory.CreateConnectionAsync().GetAwaiter().GetResult();
+});
+
+builder.Services.AddSingleton<IDriver>(sp =>
+{
+    return GraphDatabase.Driver(
+        neo4jSection.GetValue<string>("Uri"),
+        AuthTokens.Basic(
+           neo4jSection.GetValue<string>("Username"),
+           neo4jSection.GetValue<string>("Password")
+        )
+    );
+});
+
+
 Console.WriteLine("::CONNECTION VARS::");
-Console.WriteLine(connectionString);
-Console.WriteLine(redisConfig);
+Console.WriteLine(postgresConnectionString);
+Console.WriteLine(redisConnectionString);
 Console.WriteLine("::CONNECTION VARS::");
 
 builder.Services.AddEndpointsApiExplorer();

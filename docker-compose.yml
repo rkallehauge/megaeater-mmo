@@ -35,7 +35,32 @@ services:
     volumes:
       - 'valkey_data:/bitnami/valkey/data'
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
+    volumes:
+      - 'rabbitmq_data:/var/lib/rabbitmq'
+
+  neo4j:
+    image: neo4j:latest
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      NEO4J_AUTH: neo4j/password
+    volumes:
+     - 'neo4j_data:/data'
+
 volumes:
   postgres_data:
   valkey_data:
     driver: local  
+  neo4j_data:
+  rabbitmq_data:
+  
+  
