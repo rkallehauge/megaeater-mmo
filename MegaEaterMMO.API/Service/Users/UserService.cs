@@ -11,7 +11,7 @@ namespace MegaEaterMMO.API.Service.Users
     public class UserService : IUserService
     {
 
-        MegaEaterContext _context;
+        private readonly MegaEaterContext _context;
 
         public UserService(MegaEaterContext context)
         {

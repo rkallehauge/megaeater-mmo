@@ -10,8 +10,8 @@ namespace MegaEaterMMO.API.Service.Game
     public class ScoreService : IScoreService
     {
 
-        MegaEaterContext _context;
-        IConnectionMultiplexer _cache;
+        private readonly MegaEaterContext _context;
+        private readonly IConnectionMultiplexer _cache;
 
         public ScoreService(MegaEaterContext context, IConnectionMultiplexer cache)
         {

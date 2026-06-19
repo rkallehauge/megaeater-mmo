@@ -18,10 +18,10 @@ namespace MegaEaterMMO.API.Service.Auth
 {
     public class AuthenticationService : IAuthenticationService
     {
-        private MegaEaterContext _context;
-        private IConnectionMultiplexer _cache;
+        private readonly MegaEaterContext _context;
+        private readonly IConnectionMultiplexer _cache;
 
-        private IConfiguration _config;
+        private readonly IConfiguration _config;
 
         private PasswordHasher<User> _passwordHasher = new PasswordHasher<User>();
 

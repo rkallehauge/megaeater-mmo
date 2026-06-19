@@ -14,7 +14,7 @@ namespace MegaEaterMMO.API.Controllers.Game
     [Route("api/[controller]")]
     public class ScoreController : MegaAPIBase
     {
-        IScoreService _scoreService;
+        private readonly IScoreService _scoreService;
         public ScoreController(IScoreService scoreService, IUserService userService)
         {
             _scoreService = scoreService;

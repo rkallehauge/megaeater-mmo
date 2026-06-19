@@ -14,9 +14,9 @@ namespace MegaEaterMMO.API.Service.Users
     public class SocialService : ISocialService
     {
 
-        private IUserService _userService;
-        private MegaEaterContext _context;
-        private IConnection _queue; 
+        private readonly IUserService _userService;
+        private readonly MegaEaterContext _context;
+        private readonly IConnection _queue; 
 
 
         public SocialService(IUserService userService, MegaEaterContext context, IConnection queue)

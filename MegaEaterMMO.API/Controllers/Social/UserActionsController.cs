@@ -13,7 +13,7 @@ namespace MegaEaterMMO.API.Controllers.Social
     public class UserActionsController : MegaAPIBase
     {
 
-        ISocialService _socialService;
+        private readonly ISocialService _socialService;
         public UserActionsController(IUserService userService, ISocialService socialService)
         {
             _userService = userService;

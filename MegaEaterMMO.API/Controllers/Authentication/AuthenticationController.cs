@@ -13,9 +13,9 @@ namespace MegaEaterMMO.API.Controllers.Authentication
     [Route("api/[controller]")]
     public class AuthenticationController : MegaAPIBase
     {
-        private MegaEaterContext _context;
-        private IAuthenticationService _authService;
-        private IRateLimitingService _rateLimitingService;
+        private readonly MegaEaterContext _context;
+        private readonly IAuthenticationService _authService;
+        private readonly IRateLimitingService _rateLimitingService;
 
         public AuthenticationController(MegaEaterContext context, IAuthenticationService authService, IUserService userService, IRateLimitingService rateLimitingService)
         {

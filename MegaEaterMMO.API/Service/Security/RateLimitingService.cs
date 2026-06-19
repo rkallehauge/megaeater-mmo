@@ -5,7 +5,7 @@ namespace MegaEaterMMO.API.Service.Security
     public class RateLimitingService : IRateLimitingService
     {
 
-        IDatabase _cache;
+        private readonly IDatabase _cache;
         
         public RateLimitingService(IConnectionMultiplexer cache)
         {
