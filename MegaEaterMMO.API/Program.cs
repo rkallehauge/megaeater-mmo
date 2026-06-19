@@ -1,5 +1,4 @@
 using MegaEaterMMO.API.Data.DB;
-using MegaEaterMMO.API.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -10,6 +9,10 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using RabbitMQ.Client;
 using Neo4j.Driver;
+using MegaEaterMMO.API.Service.Security;
+using MegaEaterMMO.API.Service.Auth;
+using MegaEaterMMO.API.Service.Game;
+using MegaEaterMMO.API.Service.Users;
 
 
 
@@ -31,6 +34,7 @@ builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IScoreService, ScoreService>();
 builder.Services.AddScoped<IUserService, UserService>(); // todo : remove unnecessary interface
 builder.Services.AddScoped<IRateLimitingService, RateLimitingService>();
+builder.Services.AddScoped<ISocialService, SocialService>();
 
 string postgresConnectionString = configuration.GetConnectionString("Postgres");
 string redisConnectionString = configuration.GetConnectionString("Redis");
@@ -205,7 +209,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.MapControllers();
-app.Run();
 
 using (var scope = app.Services.CreateScope())
 {
@@ -217,3 +220,5 @@ using (var scope = app.Services.CreateScope())
     db.Database.Migrate();
     Console.WriteLine("Migrations done.");
 }
+
+app.Run();

@@ -1,19 +1,20 @@
 ﻿using MegaEaterMMO.Shared;
 using MegaEaterMMO.API.Data.DB;
 using MegaEaterMMO.API.Data.Model;
-using MegaEaterMMO.API.Service;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using MegaEaterMMO.API.Service.Security;
+using MegaEaterMMO.API.Service.Auth;
+using MegaEaterMMO.API.Service.Users;
 
 namespace MegaEaterMMO.API.Controllers.Authentication
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AuthenticationController : Controller
+    public class AuthenticationController : MegaAPIBase
     {
         private MegaEaterContext _context;
         private IAuthenticationService _authService;
-        private IUserService _userService;
         private IRateLimitingService _rateLimitingService;
 
         public AuthenticationController(MegaEaterContext context, IAuthenticationService authService, IUserService userService, IRateLimitingService rateLimitingService)
@@ -23,6 +24,15 @@ namespace MegaEaterMMO.API.Controllers.Authentication
             _userService = userService;
             _rateLimitingService = rateLimitingService;
         }
+
+        [HttpGet("check")]
+        [Authorize]
+        public async Task<IActionResult> Check()
+        {
+            var authUser = _userService.GetAuthenticatedUser(HttpContext.User);
+            return await Task.FromResult(Ok(authUser));
+        }
+
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] AuthRequest request)
@@ -93,14 +103,8 @@ namespace MegaEaterMMO.API.Controllers.Authentication
                 return BadRequest("No JTI provided.");
             }
 
-            var userReq = _userService.GetAuthenticatedUser(User);
-            if(!userReq.Success)
-            {
-                return Unauthorized(userReq.Errors);
-            }
+            var user = GetAuth();
 
-            User user = (userReq.Data != null) ? userReq.Data : throw new Exception("Authenticated user not found, this should never happen");
-            
             // invalidate tokens for user BEFORE deleting the account
             _authService.Logout(jti, user.Username);
 

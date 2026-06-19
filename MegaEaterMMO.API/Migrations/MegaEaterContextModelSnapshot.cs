@@ -22,6 +22,54 @@ namespace MegaEaterMMO.API.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("MegaEaterMMO.API.Data.Model.Relations.UserBlocks", b =>
+                {
+                    b.Property<int>("UserAId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserBId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("UserAId", "UserBId");
+
+                    b.HasIndex("UserBId");
+
+                    b.ToTable("UserBlocks");
+                });
+
+            modelBuilder.Entity("MegaEaterMMO.API.Data.Model.Relations.UserFriendship", b =>
+                {
+                    b.Property<int>("UserAId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserBId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Friendship")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RecieverId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RequesterId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("UserAId", "UserBId");
+
+                    b.HasIndex("UserBId");
+
+                    b.ToTable("UserFriendships", t =>
+                        {
+                            t.HasCheckConstraint("CK_UserRelations_UserAId_LessThan_UserBId", "\"UserAId\" < \"UserBId\"");
+                        });
+                });
+
             modelBuilder.Entity("MegaEaterMMO.API.Data.Model.Score", b =>
                 {
                     b.Property<int>("Id")
@@ -86,6 +134,44 @@ namespace MegaEaterMMO.API.Migrations
                         .IsUnique();
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("MegaEaterMMO.API.Data.Model.Relations.UserBlocks", b =>
+                {
+                    b.HasOne("MegaEaterMMO.API.Data.Model.User", "UserA")
+                        .WithMany()
+                        .HasForeignKey("UserAId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MegaEaterMMO.API.Data.Model.User", "UserB")
+                        .WithMany()
+                        .HasForeignKey("UserBId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("UserA");
+
+                    b.Navigation("UserB");
+                });
+
+            modelBuilder.Entity("MegaEaterMMO.API.Data.Model.Relations.UserFriendship", b =>
+                {
+                    b.HasOne("MegaEaterMMO.API.Data.Model.User", "UserA")
+                        .WithMany()
+                        .HasForeignKey("UserAId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MegaEaterMMO.API.Data.Model.User", "UserB")
+                        .WithMany()
+                        .HasForeignKey("UserBId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("UserA");
+
+                    b.Navigation("UserB");
                 });
 
             modelBuilder.Entity("MegaEaterMMO.API.Data.Model.Score", b =>

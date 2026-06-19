@@ -1,20 +1,20 @@
 ﻿using MegaEaterMMO.API.Data.Model;
-using MegaEaterMMO.API.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using MegaEaterMMO.Shared;
+using MegaEaterMMO.API.Service.Game;
+using MegaEaterMMO.API.Service.Users;
 
 namespace MegaEaterMMO.API.Controllers.Game
 {
     [ApiController]
     [Authorize]
     [Route("api/[controller]")]
-    public class ScoreController : Controller
+    public class ScoreController : MegaAPIBase
     {
         IScoreService _scoreService;
-        IUserService _userService;
         public ScoreController(IScoreService scoreService, IUserService userService)
         {
             _scoreService = scoreService;
@@ -24,8 +24,8 @@ namespace MegaEaterMMO.API.Controllers.Game
         [HttpGet("getScores")]
         public IActionResult GetScores()
         {
-            var getAuthReq = _userService.GetAuthenticatedUser(HttpContext.User);
-            User? user = (getAuthReq.Success && getAuthReq.Data!=null) ? getAuthReq.Data : throw new Exception("Authenticated user not found.");
+            var user = GetAuth();
+
             var scores = _scoreService.GetScores(user).Result;
             if (!scores.Success)
             {
@@ -38,8 +38,7 @@ namespace MegaEaterMMO.API.Controllers.Game
         [HttpPost("addScore")]
         public IActionResult AddScore(ScoreRequest req)
         {
-            var getAuthReq = _userService.GetAuthenticatedUser(HttpContext.User);
-            User? user = (getAuthReq.Success && getAuthReq.Data != null) ? getAuthReq.Data : throw new Exception("Authenticated user not found.");
+            var user = GetAuth();
 
             var addScoreReq = _scoreService.AddScore(user, req.Score);
             if(!addScoreReq.Success)
@@ -54,13 +53,8 @@ namespace MegaEaterMMO.API.Controllers.Game
         [HttpPost("addElevatedScore")]
         public IActionResult AdminAddScore(AdminScoreRequest req)
         {
-            var getUserReq = _userService.GetUser(req.UserId);
-            if (!getUserReq.Success || getUserReq.Data==null)
-            {
-                return BadRequest(getUserReq.Errors);
-            }
+            var user = GetAuth();
 
-            User user = getUserReq.Data;
             var addScoreReq = _scoreService.AddScore(user, req.Score);
             if (!addScoreReq.Success)
             {
