@@ -9,8 +9,12 @@ services:
     depends_on:
       - db
     environment:
-      - ConnectionStrings__Default=Host=db;Port=5432;Database=megaeater;Username=postgres;Password=postgres
-      - Redis__Configuration=valkey:6379
+      - ConnectionStrings__Postgres=Host=db;Port=5432;Database=megaeater;Username=postgres;Password=postgres
+      - ConnectionStrings__Redis=valkey:6379
+      - ConnectionStrings__RabbitMQ=amqp://user:password@rabbitmq:5672/
+      - Neo4j__Uri=bolt://neo4j:7687
+      - Neo4j__Username=neo4j
+      - Neo4j__Password=password
 
   db:
     image: postgres:15

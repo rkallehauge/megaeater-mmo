@@ -68,7 +68,6 @@ Console.WriteLine(redisConnectionString);
 Console.WriteLine(rabbitMQConnectionString);
 
 
-
 builder.Services.AddDbContext<MegaEaterContext>(options =>
     options.UseNpgsql(postgresConnectionString), ServiceLifetime.Scoped
 );
@@ -126,6 +125,30 @@ builder.Services.AddSwaggerGen(c =>
     c.AddSecurityRequirement(document => new() { [new OpenApiSecuritySchemeReference("Bearer", document)] = [] });
 });
 bool isDevelopment = builder.Environment.IsDevelopment();
+
+
+
+string frontendURL = configuration["FrontendURL"];
+
+if (string.IsNullOrEmpty(frontendURL))
+{
+    throw new Exception("Frontend url is not currently set.");
+}
+Console.WriteLine("frontendurl");
+Console.WriteLine(frontendURL);
+
+builder.Services.AddCors(
+    options =>
+    {
+        options.AddPolicy("React", policy =>
+        {
+            policy.WithOrigins(frontendURL)
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+        });
+    }
+);
+
 
 builder.Services.AddAuthentication("Bearer")
     .AddJwtBearer("Bearer", options =>
@@ -193,7 +216,12 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 
-app.UseHttpsRedirection();
+if (!isDevelopment)
+{
+    app.UseHttpsRedirection();
+}
+
+app.UseCors("React");
 
 app.UseAuthentication();
 app.UseAuthorization();
