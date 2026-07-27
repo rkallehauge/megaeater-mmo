@@ -1,9 +1,8 @@
-version: '3.8'
-
 services:
   megaeatermmoapi:
     build:
-      context: ./MegaEaterMMO.API
+      context: .
+      dockerfile: MegaEaterMMO.API/Dockerfile
     ports:
       - "5000:8080"
     depends_on:

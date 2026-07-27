@@ -33,7 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\MegaEaterMMO.Shared\MegaEaterMMO.Shared.csproj" />
+    <ProjectReference Include="..\MegaEaterMMO.Shared\MegaEaterMMO.Shared.csproj" />
   </ItemGroup>
 
 </Project>
